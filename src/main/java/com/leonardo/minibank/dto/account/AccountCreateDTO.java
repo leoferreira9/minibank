@@ -1,8 +1,15 @@
 package com.leonardo.minibank.dto.account;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+
 public class AccountCreateDTO {
 
+    @NotNull
+    @Positive
     private Integer accountNumber;
+
+    @NotNull
     private Long clientId;
 
     public AccountCreateDTO(){}
