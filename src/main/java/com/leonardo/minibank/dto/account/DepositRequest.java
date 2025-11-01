@@ -1,11 +1,14 @@
 package com.leonardo.minibank.dto.account;
 
 public class DepositRequest {
+
+    private Long accountId;
     private Double amount;
 
     public DepositRequest(){}
 
-    public DepositRequest(Double amount){
+    public DepositRequest(Long accountId, Double amount){
+        this.accountId = accountId;
         this.amount = amount;
     }
 
@@ -15,5 +18,13 @@ public class DepositRequest {
 
     public void setAmount(Double amount) {
         this.amount = amount;
+    }
+
+    public Long getAccountId() {
+        return accountId;
+    }
+
+    public void setAccountId(Long accountId) {
+        this.accountId = accountId;
     }
 }
