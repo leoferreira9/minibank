@@ -7,6 +7,7 @@ import com.leonardo.minibank.dto.transaction.TransactionDTO;
 import com.leonardo.minibank.exception.ResourceNotFoundException;
 import com.leonardo.minibank.model.Account;
 import com.leonardo.minibank.repository.AccountRepository;
+import com.leonardo.minibank.service.AccountService;
 import com.leonardo.minibank.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -25,39 +26,26 @@ public class TransactionController {
     @Autowired
     private AccountRepository accountRepository;
 
+    @Autowired
+    private AccountService accountService;
+
     @PostMapping("/deposit")
     public TransactionDTO deposit(@Validated @RequestBody DepositRequest depositRequest){
-        Account account = accountRepository
-                .findById(depositRequest.getAccountId())
-                .orElseThrow(() -> new ResourceNotFoundException("Account not found with ID: " + depositRequest.getAccountId()));
-
-        return transactionService.recordDeposit(account, depositRequest.getAmount());
+        return accountService.deposit(depositRequest.getAccountId(), depositRequest.getAmount());
     }
 
     @PostMapping("/withdraw")
     public TransactionDTO withdraw(@Validated @RequestBody WithdrawRequest withdrawRequest){
-        Account account = accountRepository
-                .findById(withdrawRequest.getAccountId())
-                .orElseThrow(() -> new ResourceNotFoundException("Account not found with ID: " + withdrawRequest.getAccountId()));
-
-        return transactionService.recordWithdraw(account, withdrawRequest.getAmount());
+        return accountService.withdraw(withdrawRequest.getAccountId(), withdrawRequest.getAmount());
     }
 
     @PostMapping("/transfer")
     public TransactionDTO transfer(@Validated @RequestBody TransferRequest transferRequest){
 
-        Account fromAccount = accountRepository
-                .findById(transferRequest.getFromAccountId())
-                .orElseThrow(() -> new ResourceNotFoundException("Account not found with ID: " + transferRequest.getFromAccountId()));
-
-        Account toAccount = accountRepository
-                .findById(transferRequest.getToAccountId())
-                .orElseThrow(() -> new ResourceNotFoundException("Account not found with ID: " + transferRequest.getToAccountId()));
-
-
-        TransactionDTO transactionDTO = transactionService.recordTransferOut(fromAccount, transferRequest.getAmount());
-        transactionService.recordTransferIn(toAccount, transferRequest.getAmount());
-
-        return transactionDTO;
+        return accountService.transfer(
+                transferRequest.getFromAccountId(),
+                transferRequest.getToAccountId(),
+                transferRequest.getAmount()
+        );
     }
 }
