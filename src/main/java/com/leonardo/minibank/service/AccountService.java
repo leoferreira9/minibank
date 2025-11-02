@@ -3,6 +3,7 @@ package com.leonardo.minibank.service;
 import com.leonardo.minibank.dto.account.AccountCreateDTO;
 import com.leonardo.minibank.dto.account.AccountDTO;
 import com.leonardo.minibank.dto.client.ClientDTO;
+import com.leonardo.minibank.dto.transaction.TransactionDTO;
 import com.leonardo.minibank.exception.ResourceNotFoundException;
 import com.leonardo.minibank.model.Account;
 import com.leonardo.minibank.repository.AccountRepository;
@@ -21,6 +22,9 @@ public class AccountService {
 
     @Autowired
     private ClientRepository clientRepository;
+
+    @Autowired
+    private TransactionService transactionService;
 
     public AccountDTO create(AccountCreateDTO dto){
 
@@ -57,5 +61,44 @@ public class AccountService {
         }
 
         return accountDtoList;
+    }
+
+    public TransactionDTO deposit(Long accountId, Double amount){
+        Account account = accountRepository
+                .findById(accountId)
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found with ID: " + accountId));
+
+        account.setBalance(account.getBalance() + amount);
+        accountRepository.save(account);
+        return transactionService.recordDeposit(account, amount);
+    }
+
+    public TransactionDTO withdraw(Long accountId, Double amount){
+        Account account = accountRepository
+                .findById(accountId)
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found with ID: " + accountId));
+
+        account.setBalance(account.getBalance() - amount);
+        accountRepository.save(account);
+        return transactionService.recordWithdraw(account, amount);
+    }
+
+    public TransactionDTO transfer(Long fromAccountId, Long toAccountId, Double amount){
+        Account fromAccount = accountRepository
+                .findById(fromAccountId)
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found with ID: " + fromAccountId));
+
+        Account toAccount = accountRepository
+                .findById(toAccountId)
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found with ID: " + toAccountId));
+
+        fromAccount.setBalance(fromAccount.getBalance() - amount);
+        toAccount.setBalance(toAccount.getBalance() + amount);
+
+        accountRepository.save(fromAccount);
+        accountRepository.save(toAccount);
+
+        transactionService.recordTransferIn(toAccount, amount);
+        return transactionService.recordTransferOut(fromAccount, amount);
     }
 }
