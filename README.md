@@ -6,7 +6,7 @@ Permite **criar clientes, contas e realizar transações** (depósito, saque e t
 ---
 
 ## 🚀 Tecnologias utilizadas
-- **Java 17**
+- **Java 21**
 - **Spring Boot 3**
 - **Spring Data JPA**
 - **MySQL**
